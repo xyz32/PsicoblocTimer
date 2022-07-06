@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">PshicoTimer</string>
+    <string name="trigger_start">Trigger START</string>
+    <string name="searching">Searching</string>
+    <string name="enter_pin">Enter PIN:</string>
+    <string name="left_athlete">Left Athlete</string>
+    <string name="right_athlete">Right Athlete</string>
 </resources>

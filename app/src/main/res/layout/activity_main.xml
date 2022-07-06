@@ -30,7 +30,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Left Athlete"
+                    android:text="@string/left_athlete"
                     android:textAlignment="center"
                     android:textAllCaps="false"
                     android:textSize="20sp" />
@@ -43,8 +43,8 @@
                     android:autoSizeMinTextSize="12sp"
                     android:autoSizeStepGranularity="1sp"
                     android:autoSizeTextType="uniform"
-                    android:fontFamily="monospace"
                     android:maxLines="1"
+                    android:fontFamily="monospace"
                     android:text="00:00.00"
                     android:textAlignment="center"
                     android:textSize="45sp"
@@ -66,7 +66,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Right Athlete"
+                    android:text="@string/right_athlete"
                     android:textAlignment="center"
                     android:textAllCaps="false"
                     android:textSize="20sp" />
@@ -101,7 +101,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
-            android:text="Trigger START"
+            android:text="@string/trigger_start"
             android:textSize="70sp" />
 
     </RelativeLayout>

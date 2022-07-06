@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity implements TcpClient.OnMessa
 		findViewById(R.id.triggerButton).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
+				
 				try {
 					Thread.sleep(1000);
 
