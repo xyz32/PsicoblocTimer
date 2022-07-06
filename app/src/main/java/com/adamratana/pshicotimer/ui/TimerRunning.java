@@ -26,6 +26,7 @@ public class TimerRunning extends ControlState {
 	private boolean timerRunning = false;
 	private boolean leftRunning = true;
 	private boolean rightRunning = true;
+
 	BackgroundThreadExecutor EXECUTOR = Needle.onBackgroundThread()
 			.withTaskType("generic")
 			.withThreadPoolSize(1);
@@ -88,6 +89,8 @@ public class TimerRunning extends ControlState {
 		timerRunning = false;
 		((TextView) findViewById(R.id.textLeftAthletePrev)).setText(leftAthleteText.getText());
 		((TextView) findViewById(R.id.textRightAthletePrev)).setText(rightAthleteText.getText());
+		((TextView)findViewById(R.id.textLeftOrder)).setText("");
+		((TextView)findViewById(R.id.textRightOrder)).setText("");
 
 		leftRunning = true;
 		rightRunning = true;
@@ -141,5 +144,29 @@ public class TimerRunning extends ControlState {
 				count * (Short.SIZE / 8), AudioTrack.MODE_STATIC);
 		track.write(samples, 0, count);
 		return track;
+	}
+
+	public void onButtonEvent(String message) {
+		if (message.equals("LEFT")) {
+			leftRunning = false;
+			if (rightRunning) {
+				((TextView)findViewById(R.id.textLeftOrder)).setText("1st");
+			} else {
+				((TextView)findViewById(R.id.textLeftOrder)).setText("2nd");
+			}
+		}
+
+		if (message.equals("RIGHT")) {
+			rightRunning = false;
+			if (leftRunning) {
+				((TextView)findViewById(R.id.textRightOrder)).setText("1st");
+			} else {
+				((TextView)findViewById(R.id.textRightOrder)).setText("2nd");
+			}
+		}
+
+		if (!leftRunning && !rightRunning) {
+			slider.open();
+		}
 	}
 }

@@ -2,14 +2,12 @@ package com.adamratana.pshicotimer;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.slidingpanelayout.widget.SlidingPaneLayout;
 
-import android.media.AudioFormat;
-import android.media.AudioManager;
-import android.media.AudioTrack;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import com.adamratana.pshicotimer.network.TcpClient;
 import com.adamratana.pshicotimer.ui.ControlState;
@@ -22,6 +20,13 @@ import needle.Needle;
 public class MainActivity extends AppCompatActivity implements TcpClient.OnMessageReceived {
 	View mainContainer;
 	ControlState crState;
+	final Handler handler = new Handler();
+
+	BackgroundThreadExecutor NETWORK_EXECUTOR = Needle.onBackgroundThread()
+			.withTaskType("network")
+			.withThreadPoolSize(1);
+	private TcpClient tcp;
+	private AlertDialog alertDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements TcpClient.OnMessa
 		mainContainer = findViewById(R.id.mainContainer);
 		crState = new StartTrigger(mainContainer);
 
-//		initSensors();
+		initSensors();
 
 		findViewById(R.id.triggerButton).setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -51,21 +56,91 @@ public class MainActivity extends AppCompatActivity implements TcpClient.OnMessa
 	}
 
 	private void initSensors() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 		builder.setTitle("Looking for sensors");
 		builder.setCancelable(false);
-		AlertDialog alertDialog = builder.create();
+		alertDialog = builder.create();
 
 		ViewGroup result = (ViewGroup) getLayoutInflater().inflate(R.layout.fragment_login, alertDialog.getListView(), false);
 
 		alertDialog.setView(result);
 
 		alertDialog.show();
-		TcpClient tcp =new TcpClient(this, "phsico-timer.local", 9123);
+
+		connectToSensor();
+	}
+
+	private void connectToSensor() {
+		NETWORK_EXECUTOR.execute(new Runnable() {
+			@Override
+			public void run() {
+				tcp = new TcpClient(MainActivity.this, "phsico-timer.local", 8123);
+				tcp.run();
+			}
+		});
+	}
+
+	private void disconnectFromSensor() {
+		if (tcp != null) {
+			tcp.stopClient();
+		}
+
 	}
 
 	@Override
 	public void messageReceived(String message) {
+		System.out.println(message);
+		switch (message.trim()) {
+			case "SUCCESS":
+				Needle.onMainThread().execute(new Runnable() {
+					@Override
+					public void run() {
+						alertDialog.hide();
+					}
+				});
+			case "LEFT":
+			case "RIGHT":
+				if (crState instanceof TimerRunning) {
+					((TimerRunning) crState).onButtonEvent(message);
+				}
+		}
+	}
 
+	@Override
+	public void onConnect() {
+		tcp.sendMessage("1234");
+	}
+
+	@Override
+	public void onDisconnect() {
+		initSensors();
+	}
+
+	@Override
+	public void onFailed() {
+		handler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				connectToSensor();
+			}
+		}, 1000);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+	}
+
+	@Override
+	protected void onPause() {
+		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		super.onPause();
+	}
+
+	@Override
+	protected void onDestroy() {
+		disconnectFromSensor();
+		super.onDestroy();
 	}
 }

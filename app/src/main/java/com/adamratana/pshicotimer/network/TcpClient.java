@@ -84,16 +84,14 @@ public class TcpClient {
 
 			//create a socket to make the connection with the server
 			Socket socket = new Socket(serverAddr, serverPort);
+			//sends the message to the server
+			mBufferOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
+
+			//receives the message which the server sends back
+			mBufferIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			mMessageListener.onConnect();
 
 			try {
-
-				//sends the message to the server
-				mBufferOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
-
-				//receives the message which the server sends back
-				mBufferIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-
 				//in this while the client listens for the messages sent by the server
 				while (mRun) {
 
@@ -114,18 +112,26 @@ public class TcpClient {
 				//the socket must be closed. It is not possible to reconnect to this socket
 				// after it is closed, which means a new socket instance has to be created.
 				socket.close();
+				if (mServerMessage != null && mMessageListener != null) {
+					mMessageListener.onDisconnect();
+				}
 			}
 
 		} catch (Exception e) {
 			Log.e("TCP", "C: Error", e);
+			if (mServerMessage != null && mMessageListener != null) {
+				mMessageListener.onFailed();
+			}
 		}
-
 	}
 
 	//Declare the interface. The method messageReceived(String message) will must be implemented in the Activity
 	//class at on AsyncTask doInBackground
 	public interface OnMessageReceived {
 		public void messageReceived(String message);
+		public void onConnect();
+		public void onDisconnect();
+		public void onFailed();
 	}
 
 }
