@@ -77,6 +77,8 @@ public class TimerRunning extends ControlState {
 						updateTimers(currentTime);
 						Thread.sleep(10);
 					}
+
+					updateStatus("Done.");
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -147,6 +149,10 @@ public class TimerRunning extends ControlState {
 	}
 
 	public void onButtonEvent(String message) {
+		if (!timerRunning) {
+			return;
+		}
+
 		if (message.equals("LEFT")) {
 			leftRunning = false;
 			if (rightRunning) {
@@ -166,7 +172,7 @@ public class TimerRunning extends ControlState {
 		}
 
 		if (!leftRunning && !rightRunning) {
-			slider.open();
+			timerRunning = false;
 		}
 	}
 }
