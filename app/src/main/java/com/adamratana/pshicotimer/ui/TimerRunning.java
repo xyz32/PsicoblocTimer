@@ -155,20 +155,30 @@ public class TimerRunning extends ControlState {
 
 		if (message.equals("LEFT")) {
 			leftRunning = false;
-			if (rightRunning) {
-				((TextView)findViewById(R.id.textLeftOrder)).setText("1st");
-			} else {
-				((TextView)findViewById(R.id.textLeftOrder)).setText("2nd");
-			}
+			Needle.onMainThread().execute(new Runnable() {
+				@Override
+				public void run() {
+					if (rightRunning) {
+						((TextView) findViewById(R.id.textLeftOrder)).setText("1st");
+					} else {
+						((TextView) findViewById(R.id.textLeftOrder)).setText("2nd");
+					}
+				}
+			});
 		}
 
 		if (message.equals("RIGHT")) {
 			rightRunning = false;
-			if (leftRunning) {
-				((TextView)findViewById(R.id.textRightOrder)).setText("1st");
-			} else {
-				((TextView)findViewById(R.id.textRightOrder)).setText("2nd");
-			}
+			Needle.onMainThread().execute(new Runnable() {
+				@Override
+				public void run() {
+					if (leftRunning) {
+						((TextView) findViewById(R.id.textRightOrder)).setText("1st");
+					} else {
+						((TextView) findViewById(R.id.textRightOrder)).setText("2nd");
+					}
+				}
+			});
 		}
 
 		if (!leftRunning && !rightRunning) {
