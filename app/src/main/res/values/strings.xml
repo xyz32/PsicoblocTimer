@@ -5,4 +5,5 @@
     <string name="enter_pin">Enter PIN:</string>
     <string name="left_athlete">Left Athlete</string>
     <string name="right_athlete">Right Athlete</string>
+    <string name="swipe_right_to_reset">Swipe Right for Reset</string>
 </resources>

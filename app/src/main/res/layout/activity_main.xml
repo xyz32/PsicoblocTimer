@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
@@ -36,6 +36,7 @@
                     android:textSize="20sp" />
 
                 <TextView
+                    android:id="@+id/textLeftAthleteCurrent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginVertical="20dp"
@@ -51,6 +52,7 @@
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/textLeftAthletePrev"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="00:00.00"
@@ -80,6 +82,7 @@
                     android:textSize="20sp" />
 
                 <TextView
+                    android:id="@+id/textRightAthleteCurrent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginVertical="20dp"
@@ -95,6 +98,7 @@
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/textRightAthletePrev"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="00:00.00"
@@ -112,13 +116,36 @@
         android:layout_weight="0.5"
         >
 
-        <Button
-            android:id="@+id/triggerButton"
+        <androidx.slidingpanelayout.widget.SlidingPaneLayout
+            android:id="@+id/slidingPane"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="@string/trigger_start"
-            android:textSize="70sp" />
+
+            >
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="start" >
+
+                <include layout="@layout/fragment_start"
+                    android:id="@+id/startLayout"
+                    />
+                <include layout="@layout/fragment_running"
+                    android:id="@+id/runningLayout"
+                    android:visibility="gone"
+                    />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="end">
+                <include layout="@layout/fragment_reset" />
+            </RelativeLayout>
+
+        </androidx.slidingpanelayout.widget.SlidingPaneLayout>
 
     </RelativeLayout>
 
