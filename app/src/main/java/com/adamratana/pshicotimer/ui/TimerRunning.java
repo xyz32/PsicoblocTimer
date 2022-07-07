@@ -14,27 +14,32 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import needle.BackgroundThreadExecutor;
 import needle.Needle;
 
 public class TimerRunning extends ControlState {
+	private final static String DISPLAY_TIME_FORMAT = "mm:ss.SSS";
 	private final TextView statusText;
 	private final SimpleDateFormat formatter;
 	private final TextView leftAthleteText;
 	private final TextView rightAthleteText;
-	private boolean timerRunning = false;
+	private boolean timerRunning;
 	private boolean leftRunning = true;
 	private boolean rightRunning = true;
 
 	BackgroundThreadExecutor EXECUTOR = Needle.onBackgroundThread()
 			.withTaskType("generic")
 			.withThreadPoolSize(1);
+	private ScheduledExecutorService executor;
 
 	public TimerRunning(View mainContainer) {
 		super(mainContainer);
 
-		formatter = new SimpleDateFormat("mm:ss.SS", Locale.US);
+		formatter = new SimpleDateFormat(DISPLAY_TIME_FORMAT, Locale.US);
 		formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
 
 		findViewById(R.id.runningLayout).setVisibility(View.VISIBLE);
@@ -66,19 +71,24 @@ public class TimerRunning extends ControlState {
 					startTime = System.currentTimeMillis();
 					generateTone(1760, 100, 1).play();
 
-					while (timerRunning) {
-						long currentTime = System.currentTimeMillis() - startTime;
-						if ((currentTime / 1000) % 2 == 0) {
-							updateStatus("GO!");
-						} else {
-							updateStatus("");
+					executor = Executors.newSingleThreadScheduledExecutor();
+					executor.scheduleAtFixedRate(new Runnable() {
+						@Override
+						public void run() {
+							if (!timerRunning) {
+								return;
+							}
+
+							long currentTime = System.currentTimeMillis() - startTime;
+							if ((currentTime / 1000) % 2 == 0) {
+								updateStatus("GO!");
+							} else {
+								updateStatus("");
+							}
+
+							updateTimers(currentTime);
 						}
-
-						updateTimers(currentTime);
-						Thread.sleep(10);
-					}
-
-					updateStatus("Done.");
+					}, 0, 1, TimeUnit.MILLISECONDS);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -182,7 +192,13 @@ public class TimerRunning extends ControlState {
 		}
 
 		if (!leftRunning && !rightRunning) {
-			timerRunning = false;
+			timingRunDone();
 		}
+	}
+
+	private void timingRunDone() {
+		updateStatus("Done.");
+		timerRunning = false;
+		executor.shutdown();
 	}
 }

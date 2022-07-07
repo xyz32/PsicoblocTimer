@@ -46,7 +46,7 @@
                     android:autoSizeTextType="uniform"
                     android:maxLines="1"
                     android:fontFamily="monospace"
-                    android:text="00:00.00"
+                    android:text="00:00.000"
                     android:textAlignment="center"
                     android:textSize="45sp"
                     android:textStyle="bold" />
@@ -55,7 +55,7 @@
                     android:id="@+id/textLeftAthletePrev"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="00:00.00"
+                    android:text="00:00.000"
                     android:textAlignment="center"
                     android:textAllCaps="false"
                     android:textSize="20sp" />
@@ -110,7 +110,7 @@
                     android:autoSizeTextType="uniform"
                     android:fontFamily="monospace"
                     android:maxLines="1"
-                    android:text="00:00.00"
+                    android:text="00:00.000"
                     android:textAlignment="center"
                     android:textSize="45sp"
                     android:textStyle="bold" />
@@ -119,7 +119,7 @@
                     android:id="@+id/textRightAthletePrev"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="00:00.00"
+                    android:text="00:00.000"
                     android:textAlignment="center"
                     android:textAllCaps="false"
                     android:textSize="20sp" />
