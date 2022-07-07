@@ -167,7 +167,7 @@ public class TimerRunning extends ControlState {
 			return;
 		}
 
-		if (message.equals("LEFT")) {
+		if (message.equals("LEFT") && leftRunTime == 0) {
 			leftRunTime = System.currentTimeMillis() - startTime;
 			Needle.onMainThread().execute(new Runnable() {
 				@Override
@@ -181,7 +181,7 @@ public class TimerRunning extends ControlState {
 			});
 		}
 
-		if (message.equals("RIGHT")) {
+		if (message.equals("RIGHT") && rightRunTime == 0) {
 			rightRunTime = System.currentTimeMillis() - startTime;
 			Needle.onMainThread().execute(new Runnable() {
 				@Override
