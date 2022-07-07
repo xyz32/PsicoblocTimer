@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import needle.BackgroundThreadExecutor;
@@ -28,13 +29,14 @@ public class TimerRunning extends ControlState {
 	private final TextView leftAthleteText;
 	private final TextView rightAthleteText;
 	private boolean timerRunning;
-	private boolean leftRunning = true;
-	private boolean rightRunning = true;
+	private long leftRunTime = 0;
+	private long rightRunTime = 0;
 
 	BackgroundThreadExecutor EXECUTOR = Needle.onBackgroundThread()
 			.withTaskType("generic")
 			.withThreadPoolSize(1);
 	private ScheduledExecutorService executor;
+	private long startTime;
 
 	public TimerRunning(View mainContainer) {
 		super(mainContainer);
@@ -51,8 +53,6 @@ public class TimerRunning extends ControlState {
 		timerRunning = true;
 
 		EXECUTOR.execute(new Runnable() {
-			private long startTime;
-
 			@Override
 			public void run() {
 				try {
@@ -88,7 +88,7 @@ public class TimerRunning extends ControlState {
 
 							updateTimers(currentTime);
 						}
-					}, 0, 1, TimeUnit.MILLISECONDS);
+					}, 0, 53, TimeUnit.MILLISECONDS); //use a prime number to avoid creating patterns
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -104,8 +104,8 @@ public class TimerRunning extends ControlState {
 		((TextView)findViewById(R.id.textLeftOrder)).setText("");
 		((TextView)findViewById(R.id.textRightOrder)).setText("");
 
-		leftRunning = true;
-		rightRunning = true;
+		leftRunTime = 0;
+		rightRunTime = 0;
 		updateTimers(0);
 		findViewById(R.id.runningLayout).setVisibility(View.GONE);
 	}
@@ -124,12 +124,16 @@ public class TimerRunning extends ControlState {
 		Needle.onMainThread().execute(new Runnable() {
 			@Override
 			public void run() {
-				if (leftRunning) {
+				if (leftRunTime == 0) {
 					leftAthleteText.setText(text);
+				} else {
+					leftAthleteText.setText(formatter.format(new Date(leftRunTime)));
 				}
 
-				if (rightRunning) {
+				if (rightRunTime == 0) {
 					rightAthleteText.setText(text);
+				} else {
+					rightAthleteText.setText(formatter.format(new Date(rightRunTime)));
 				}
 			}
 		});
@@ -164,11 +168,11 @@ public class TimerRunning extends ControlState {
 		}
 
 		if (message.equals("LEFT")) {
-			leftRunning = false;
+			leftRunTime = System.currentTimeMillis() - startTime;
 			Needle.onMainThread().execute(new Runnable() {
 				@Override
 				public void run() {
-					if (rightRunning) {
+					if (rightRunTime == 0) {
 						((TextView) findViewById(R.id.textLeftOrder)).setText("1st");
 					} else {
 						((TextView) findViewById(R.id.textLeftOrder)).setText("2nd");
@@ -178,11 +182,11 @@ public class TimerRunning extends ControlState {
 		}
 
 		if (message.equals("RIGHT")) {
-			rightRunning = false;
+			rightRunTime = System.currentTimeMillis() - startTime;
 			Needle.onMainThread().execute(new Runnable() {
 				@Override
 				public void run() {
-					if (leftRunning) {
+					if (leftRunTime == 0) {
 						((TextView) findViewById(R.id.textRightOrder)).setText("1st");
 					} else {
 						((TextView) findViewById(R.id.textRightOrder)).setText("2nd");
@@ -191,7 +195,7 @@ public class TimerRunning extends ControlState {
 			});
 		}
 
-		if (!leftRunning && !rightRunning) {
+		if (leftRunTime != 0 && rightRunTime != 0) {
 			timingRunDone();
 		}
 	}
@@ -200,5 +204,6 @@ public class TimerRunning extends ControlState {
 		updateStatus("Done.");
 		timerRunning = false;
 		executor.shutdown();
+		updateTimers(System.currentTimeMillis() - startTime); //make sure all timers are refreshed.
 	}
 }
