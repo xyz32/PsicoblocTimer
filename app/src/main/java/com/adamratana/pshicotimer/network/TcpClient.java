@@ -128,10 +128,10 @@ public class TcpClient {
 	//Declare the interface. The method messageReceived(String message) will must be implemented in the Activity
 	//class at on AsyncTask doInBackground
 	public interface OnMessageReceived {
-		public void messageReceived(String message);
-		public void onConnect();
-		public void onDisconnect();
-		public void onFailed();
+		void messageReceived(String message);
+		void onConnect();
+		void onDisconnect();
+		void onFailed();
 	}
 
 }

@@ -41,6 +41,8 @@ public class TimerRunning extends ControlState {
 	public TimerRunning(View mainContainer) {
 		super(mainContainer);
 
+		timerRunning = false;
+
 		formatter = new SimpleDateFormat(DISPLAY_TIME_FORMAT, Locale.US);
 		formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
 
@@ -49,8 +51,6 @@ public class TimerRunning extends ControlState {
 		leftAthleteText = (TextView) findViewById(R.id.textLeftAthleteCurrent);
 		rightAthleteText = (TextView) findViewById(R.id.textRightAthleteCurrent);
 		slider.setLockMode(SlidingPaneLayout.LOCK_MODE_UNLOCKED);
-
-		timerRunning = true;
 
 		EXECUTOR.execute(new Runnable() {
 			@Override
@@ -70,6 +70,8 @@ public class TimerRunning extends ControlState {
 					updateStatus("GO!");
 					startTime = System.currentTimeMillis();
 					generateTone(1760, 100, 1).play();
+
+					timerRunning = true;
 
 					executor = Executors.newSingleThreadScheduledExecutor();
 					executor.scheduleAtFixedRate(new Runnable() {
