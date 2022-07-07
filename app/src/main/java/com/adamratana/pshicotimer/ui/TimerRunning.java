@@ -31,6 +31,8 @@ public class TimerRunning extends ControlState {
 	private boolean timerRunning;
 	private long leftRunTime = 0;
 	private long rightRunTime = 0;
+	private AudioTrack audioLow;
+	private AudioTrack audioHigh;
 
 	BackgroundThreadExecutor EXECUTOR = Needle.onBackgroundThread()
 			.withTaskType("generic")
@@ -40,6 +42,9 @@ public class TimerRunning extends ControlState {
 
 	public TimerRunning(View mainContainer) {
 		super(mainContainer);
+
+		audioLow = generateTone(880, 200, 1);
+		audioHigh = generateTone(1760, 100, 1);
 
 		timerRunning = false;
 
@@ -60,17 +65,20 @@ public class TimerRunning extends ControlState {
 					Thread.sleep(1000);
 
 					updateStatus("2");
-					generateTone(880, 200, 1).play();
+
+					audioLow.play();
 					Thread.sleep(800);
+					audioLow.stop();
 
 					updateStatus("1");
-					generateTone(880, 200, 1).play();
+					audioLow.play();
 					Thread.sleep(800);
+					audioLow.stop();
 
 					updateStatus("GO!");
 					startTime = System.currentTimeMillis();
-					generateTone(1760, 100, 1).play();
 
+					audioHigh.play();
 					timerRunning = true;
 
 					executor = Executors.newSingleThreadScheduledExecutor();
@@ -101,6 +109,10 @@ public class TimerRunning extends ControlState {
 	@Override
 	public void terminate() {
 		timerRunning = false;
+
+		audioLow.release();
+		audioHigh.release();
+
 		((TextView) findViewById(R.id.textLeftAthletePrev)).setText(leftAthleteText.getText());
 		((TextView) findViewById(R.id.textRightAthletePrev)).setText(rightAthleteText.getText());
 		((TextView)findViewById(R.id.textLeftOrder)).setText("");
@@ -171,30 +183,20 @@ public class TimerRunning extends ControlState {
 
 		if (message.equals("LEFT") && leftRunTime == 0) {
 			leftRunTime = System.currentTimeMillis() - startTime;
-			Needle.onMainThread().execute(new Runnable() {
-				@Override
-				public void run() {
-					if (rightRunTime == 0) {
-						((TextView) findViewById(R.id.textLeftOrder)).setText("1st");
-					} else {
-						((TextView) findViewById(R.id.textLeftOrder)).setText("2nd");
-					}
-				}
-			});
+			if (rightRunTime == 0) {
+				updateUIElement(R.id.textLeftOrder, "1st");
+			} else {
+				updateUIElement(R.id.textLeftOrder, "2nd");
+			}
 		}
 
 		if (message.equals("RIGHT") && rightRunTime == 0) {
 			rightRunTime = System.currentTimeMillis() - startTime;
-			Needle.onMainThread().execute(new Runnable() {
-				@Override
-				public void run() {
-					if (leftRunTime == 0) {
-						((TextView) findViewById(R.id.textRightOrder)).setText("1st");
-					} else {
-						((TextView) findViewById(R.id.textRightOrder)).setText("2nd");
-					}
-				}
-			});
+			if (leftRunTime == 0) {
+				updateUIElement(R.id.textRightOrder, "1st");
+			} else {
+				updateUIElement(R.id.textRightOrder, "2nd");
+			}
 		}
 
 		if (leftRunTime != 0 && rightRunTime != 0) {
@@ -207,5 +209,14 @@ public class TimerRunning extends ControlState {
 		timerRunning = false;
 		executor.shutdown();
 		updateTimers(System.currentTimeMillis() - startTime); //make sure all timers are refreshed.
+	}
+
+	private void updateUIElement(int id, String text) {
+		Needle.onMainThread().execute(new Runnable() {
+			@Override
+			public void run() {
+				((TextView) findViewById(id)).setText(text);
+			}
+		});
 	}
 }
