@@ -6,4 +6,4 @@
     android:text="00:00.000"
     android:textAlignment="center"
     android:textAllCaps="false"
-    android:textSize="20sp" />
+    android:textSize="16sp" />
