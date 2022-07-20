@@ -8,11 +8,16 @@ import android.os.Handler;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.adamratana.pshicotimer.network.TcpClient;
 import com.adamratana.pshicotimer.ui.ControlState;
 import com.adamratana.pshicotimer.ui.StartTrigger;
 import com.adamratana.pshicotimer.ui.TimerRunning;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import needle.BackgroundThreadExecutor;
 import needle.Needle;
@@ -27,11 +32,19 @@ public class MainActivity extends AppCompatActivity implements TcpClient.OnMessa
 			.withThreadPoolSize(1);
 	private TcpClient tcp;
 	private AlertDialog alertDialog;
+	private final List<String> leftHistoryList = new ArrayList<>();
+	private final List<String> rightHistoryList = new ArrayList<>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		ArrayAdapter<String> leftHistoryAdapter = new ArrayAdapter<>(this, R.layout.list_history_item, leftHistoryList);
+		ArrayAdapter<String> rightHistoryAdapter = new ArrayAdapter<>(this, R.layout.list_history_item, rightHistoryList);
+
+		((ListView)findViewById(R.id.listLeftAthletePrev)).setAdapter(leftHistoryAdapter);
+		((ListView)findViewById(R.id.listRightAthletePrev)).setAdapter(rightHistoryAdapter);
 
 		mainContainer = findViewById(R.id.mainContainer);
 		crState = new StartTrigger(mainContainer);
@@ -42,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements TcpClient.OnMessa
 			@Override
 			public void onClick(View view) {
 				crState.terminate();
-				crState = new TimerRunning(mainContainer);
+				crState = new TimerRunning(mainContainer, leftHistoryAdapter, rightHistoryAdapter);
 			}
 		});
 

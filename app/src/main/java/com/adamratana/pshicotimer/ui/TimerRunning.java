@@ -4,6 +4,8 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.slidingpanelayout.widget.SlidingPaneLayout;
@@ -11,7 +13,9 @@ import androidx.slidingpanelayout.widget.SlidingPaneLayout;
 import com.adamratana.pshicotimer.R;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.Executors;
@@ -33,6 +37,8 @@ public class TimerRunning extends ControlState {
 	private long rightRunTime = 0;
 	private AudioTrack audioLow;
 	private AudioTrack audioHigh;
+	private final ArrayAdapter<String> leftHistoryList;
+	private final ArrayAdapter<String> rightHistoryList;
 
 	BackgroundThreadExecutor EXECUTOR = Needle.onBackgroundThread()
 			.withTaskType("generic")
@@ -40,8 +46,11 @@ public class TimerRunning extends ControlState {
 	private ScheduledExecutorService executor;
 	private long startTime;
 
-	public TimerRunning(View mainContainer) {
+	public TimerRunning(View mainContainer, ArrayAdapter<String> leftHistoryList, ArrayAdapter<String> rightHistoryList) {
 		super(mainContainer);
+
+		this.leftHistoryList = leftHistoryList;
+		this.rightHistoryList = rightHistoryList;
 
 		audioLow = generateTone(880, 200, 1);
 		audioHigh = generateTone(1760, 100, 1);
@@ -113,8 +122,10 @@ public class TimerRunning extends ControlState {
 		audioLow.release();
 		audioHigh.release();
 
-		((TextView) findViewById(R.id.textLeftAthletePrev)).setText(leftAthleteText.getText());
-		((TextView) findViewById(R.id.textRightAthletePrev)).setText(rightAthleteText.getText());
+		leftHistoryList.insert(leftAthleteText.getText().toString(), 0);
+		leftHistoryList.notifyDataSetChanged();
+		rightHistoryList.insert(rightAthleteText.getText().toString(),0);
+		rightHistoryList.notifyDataSetChanged();
 		((TextView)findViewById(R.id.textLeftOrder)).setText("");
 		((TextView)findViewById(R.id.textRightOrder)).setText("");
 
