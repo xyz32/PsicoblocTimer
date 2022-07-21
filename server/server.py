@@ -9,8 +9,8 @@ import threading
 
 clients_lock = threading.Lock()
 
-BUTTON_LEFT_GPIO = 15
-BUTTON_RIGHT_GPIO = 14
+BUTTON_LEFT_GPIO = 14
+BUTTON_RIGHT_GPIO = 12
 
 active_clients = set()
 
