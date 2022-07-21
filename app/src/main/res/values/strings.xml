@@ -7,4 +7,5 @@
     <string name="right_athlete">Right Athlete</string>
     <string name="swipe_right_to_reset">Swipe Right for Reset</string>
     <string name="history">History:</string>
+    <string name="reset">Reset</string>
 </resources>

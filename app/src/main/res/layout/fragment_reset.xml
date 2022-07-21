@@ -3,10 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="start" >
+
     <Button
         android:id="@+id/resetButton"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Reset"
+        android:breakStrategy="simple"
+        android:text="@string/reset"
         android:textSize="70sp" />
 </RelativeLayout>

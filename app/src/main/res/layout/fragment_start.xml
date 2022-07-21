@@ -7,6 +7,8 @@
         android:id="@+id/triggerButton"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:breakStrategy="simple"
+        android:hyphenationFrequency="none"
         android:text="@string/trigger_start"
-        android:textSize="70sp" />
+        android:textSize="65sp" />
 </RelativeLayout>

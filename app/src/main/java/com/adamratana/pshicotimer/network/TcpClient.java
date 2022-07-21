@@ -119,7 +119,7 @@ public class TcpClient {
 
 		} catch (Exception e) {
 			Log.e("TCP", "C: Error", e);
-			if (mServerMessage != null && mMessageListener != null) {
+			if (mMessageListener != null) {
 				mMessageListener.onFailed();
 			}
 		}

@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements TcpClient.OnMessa
 		NETWORK_EXECUTOR.execute(new Runnable() {
 			@Override
 			public void run() {
-				tcp = new TcpClient(MainActivity.this, "phsico-timer.local", 8123);
+				tcp = new TcpClient(MainActivity.this, "phsico-timer", 8123);
 				tcp.run();
 			}
 		});
