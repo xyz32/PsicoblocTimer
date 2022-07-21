@@ -35,8 +35,10 @@ public class TimerRunning extends ControlState {
 	private boolean timerRunning;
 	private long leftRunTime = 0;
 	private long rightRunTime = 0;
-	private AudioTrack audioLow;
-	private AudioTrack audioHigh;
+	private final AudioTrack audioSilence;
+	private final AudioTrack audioLow1;
+	private final AudioTrack audioLow2;
+	private final AudioTrack audioHigh;
 	private final ArrayAdapter<String> leftHistoryList;
 	private final ArrayAdapter<String> rightHistoryList;
 
@@ -52,7 +54,9 @@ public class TimerRunning extends ControlState {
 		this.leftHistoryList = leftHistoryList;
 		this.rightHistoryList = rightHistoryList;
 
-		audioLow = generateTone(880, 200, 1);
+		audioSilence = generateTone(1, 200, 0.01); //bluetooth speakers are shit.
+		audioLow1 = generateTone(880, 200, 1);
+		audioLow2 = generateTone(880, 200, 1);
 		audioHigh = generateTone(1760, 100, 1);
 
 		timerRunning = false;
@@ -70,25 +74,28 @@ public class TimerRunning extends ControlState {
 			@Override
 			public void run() {
 				try {
+					audioSilence.play();
 					updateStatus("3");
-					Thread.sleep(1000);
+					Thread.sleep(500);
+					audioSilence.stop();
+					Thread.sleep(500);
 
+					audioLow1.play();
 					updateStatus("2");
+					Thread.sleep(400);
+					audioLow1.stop();
+					Thread.sleep(400);
 
-					audioLow.play();
-					Thread.sleep(800);
-					audioLow.stop();
-
+					audioLow2.play();
 					updateStatus("1");
-					audioLow.play();
-					Thread.sleep(800);
-					audioLow.stop();
+					Thread.sleep(400);
+					audioLow2.stop();
+					Thread.sleep(400);
 
+					timerRunning = true;
+					audioHigh.play();
 					updateStatus("GO!");
 					startTime = System.currentTimeMillis();
-
-					audioHigh.play();
-					timerRunning = true;
 
 					executor = Executors.newSingleThreadScheduledExecutor();
 					executor.scheduleAtFixedRate(new Runnable() {
@@ -108,8 +115,18 @@ public class TimerRunning extends ControlState {
 							updateTimers(currentTime);
 						}
 					}, 0, 53, TimeUnit.MILLISECONDS); //use a prime number to avoid creating patterns
+
+					Thread.sleep(400);
+					audioHigh.stop();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
+				} finally {
+					audioLow1.stop();
+					audioLow2.stop();
+					audioHigh.stop();
+					audioLow1.release();
+					audioLow2.release();
+					audioHigh.release();
 				}
 			}
 		});
@@ -119,7 +136,9 @@ public class TimerRunning extends ControlState {
 	public void terminate() {
 		timerRunning = false;
 
-		audioLow.release();
+		audioSilence.release();
+		audioLow1.release();
+		audioLow2.release();
 		audioHigh.release();
 
 		leftHistoryList.insert(leftAthleteText.getText().toString(), 0);
