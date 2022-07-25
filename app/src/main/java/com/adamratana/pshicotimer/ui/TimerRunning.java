@@ -20,7 +20,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import needle.BackgroundThreadExecutor;
@@ -36,8 +35,7 @@ public class TimerRunning extends ControlState {
 	private long leftRunTime = 0;
 	private long rightRunTime = 0;
 	private final AudioTrack audioSilence;
-	private final AudioTrack audioLow1;
-	private final AudioTrack audioLow2;
+	private final AudioTrack audioLow;
 	private final AudioTrack audioHigh;
 	private final ArrayAdapter<String> leftHistoryList;
 	private final ArrayAdapter<String> rightHistoryList;
@@ -55,8 +53,7 @@ public class TimerRunning extends ControlState {
 		this.rightHistoryList = rightHistoryList;
 
 		audioSilence = generateTone(1, 200, 0.01); //bluetooth speakers are shit.
-		audioLow1 = generateTone(880, 200, 1);
-		audioLow2 = generateTone(880, 200, 1);
+		audioLow = generateTone(880, 200, 1);
 		audioHigh = generateTone(1760, 100, 1);
 
 		timerRunning = false;
@@ -80,16 +77,16 @@ public class TimerRunning extends ControlState {
 					audioSilence.stop();
 					Thread.sleep(500);
 
-					audioLow1.play();
+					audioLow.play();
 					updateStatus("2");
 					Thread.sleep(400);
-					audioLow1.stop();
+					audioLow.stop();
 					Thread.sleep(400);
 
-					audioLow2.play();
+					audioLow.play();
 					updateStatus("1");
 					Thread.sleep(400);
-					audioLow2.stop();
+					audioLow.stop();
 					Thread.sleep(400);
 
 					timerRunning = true;
@@ -121,11 +118,9 @@ public class TimerRunning extends ControlState {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				} finally {
-					audioLow1.stop();
-					audioLow2.stop();
+					audioLow.stop();
 					audioHigh.stop();
-					audioLow1.release();
-					audioLow2.release();
+					audioLow.release();
 					audioHigh.release();
 				}
 			}
@@ -137,8 +132,7 @@ public class TimerRunning extends ControlState {
 		timerRunning = false;
 
 		audioSilence.release();
-		audioLow1.release();
-		audioLow2.release();
+		audioLow.release();
 		audioHigh.release();
 
 		leftHistoryList.insert(leftAthleteText.getText().toString(), 0);
@@ -183,7 +177,7 @@ public class TimerRunning extends ControlState {
 		});
 	}
 
-	private AudioTrack generateTone(double freqHz, int durationMs, double volume)
+	public static AudioTrack generateTone(double freqHz, int durationMs, double volume)
 	{
 		if (volume > 1 || volume < 0){
 			volume = 1; //will make sure it isn't too loud
