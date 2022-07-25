@@ -57,6 +57,9 @@ def clientHandler(client_socket):
             if not data:
                 client_socket.shutdown(socket.SHUT_RDWR)
                 break
+
+            if data == "PING":
+                client_socket.send("PONG\n".encode())
     finally:
         with clients_lock:
             active_clients.remove(client)

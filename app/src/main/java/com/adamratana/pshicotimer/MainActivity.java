@@ -31,9 +31,9 @@ public class MainActivity extends AppCompatActivity implements TcpClient.OnMessa
 			.withTaskType("network")
 			.withThreadPoolSize(1);
 	private TcpClient tcp;
-	private AlertDialog alertDialog;
 	private final List<String> leftHistoryList = new ArrayList<>();
 	private final List<String> rightHistoryList = new ArrayList<>();
+	private View statusContainer;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements TcpClient.OnMessa
 		((ListView)findViewById(R.id.listLeftAthletePrev)).setAdapter(leftHistoryAdapter);
 		((ListView)findViewById(R.id.listRightAthletePrev)).setAdapter(rightHistoryAdapter);
 
+		statusContainer = findViewById(R.id.connectStatusView);
 		mainContainer = findViewById(R.id.mainContainer);
 		crState = new StartTrigger(mainContainer);
 
@@ -69,17 +70,7 @@ public class MainActivity extends AppCompatActivity implements TcpClient.OnMessa
 	}
 
 	private void initSensors() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-		builder.setTitle("Looking for sensors");
-		builder.setCancelable(false);
-		alertDialog = builder.create();
-
-		ViewGroup result = (ViewGroup) getLayoutInflater().inflate(R.layout.fragment_login, alertDialog.getListView(), false);
-
-		alertDialog.setView(result);
-
-		alertDialog.show();
-
+		statusContainer.setVisibility(View.VISIBLE);
 		connectToSensor();
 	}
 
@@ -108,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements TcpClient.OnMessa
 				Needle.onMainThread().execute(new Runnable() {
 					@Override
 					public void run() {
-						alertDialog.hide();
+						statusContainer.setVisibility(View.GONE);
 					}
 				});
 			case "LEFT":
@@ -126,7 +117,12 @@ public class MainActivity extends AppCompatActivity implements TcpClient.OnMessa
 
 	@Override
 	public void onDisconnect() {
-		initSensors();
+		Needle.onMainThread().execute(new Runnable() {
+			@Override
+			public void run() {
+				initSensors();
+			}
+		});
 	}
 
 	@Override

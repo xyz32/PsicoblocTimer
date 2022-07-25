@@ -3,14 +3,18 @@ package com.adamratana.pshicotimer.network;
 import android.util.Log;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class TcpClient {
-
+	public static final int TIMEOUT_COUNT = 2;
 	public static final String TAG = TcpClient.class.getSimpleName();
 	private final String serverIp; //server IP address
 	private final int serverPort;
@@ -24,6 +28,8 @@ public class TcpClient {
 	private PrintWriter mBufferOut;
 	// used to read messages from the server
 	private BufferedReader mBufferIn;
+	private ScheduledExecutorService executor;
+	int timeoutCounter = TIMEOUT_COUNT;
 
 	/**
 	 * Constructor of the class. OnMessagedReceived listens for the messages received from server
@@ -44,7 +50,6 @@ public class TcpClient {
 			@Override
 			public void run() {
 				if (mBufferOut != null) {
-					Log.d(TAG, "Sending: " + message);
 					mBufferOut.println(message);
 					mBufferOut.flush();
 				}
@@ -92,6 +97,25 @@ public class TcpClient {
 			mMessageListener.onConnect();
 
 			try {
+
+				executor = Executors.newSingleThreadScheduledExecutor();
+				executor.scheduleAtFixedRate(new Runnable() {
+					@Override
+					public void run() {
+						if (timeoutCounter == 0) {
+							mRun = false;
+							try {
+								socket.close();
+							} catch (IOException e) {
+								if (mMessageListener != null) {
+									mMessageListener.onDisconnect();
+								}
+							}
+						}
+						timeoutCounter -= 1;
+						sendMessage("PING");
+					}
+				},1000,1000, TimeUnit.MILLISECONDS);
 				//in this while the client listens for the messages sent by the server
 				while (mRun) {
 
@@ -99,7 +123,11 @@ public class TcpClient {
 
 					if (mServerMessage != null && mMessageListener != null) {
 						//call the method messageReceived from MyActivity class
-						mMessageListener.messageReceived(mServerMessage);
+						if (mServerMessage.startsWith("PONG")) {
+							timeoutCounter = TIMEOUT_COUNT;
+						} else {
+							mMessageListener.messageReceived(mServerMessage);
+						}
 					}
 
 				}
@@ -112,7 +140,8 @@ public class TcpClient {
 				//the socket must be closed. It is not possible to reconnect to this socket
 				// after it is closed, which means a new socket instance has to be created.
 				socket.close();
-				if (mServerMessage != null && mMessageListener != null) {
+				executor.shutdown();
+				if (mMessageListener != null) {
 					mMessageListener.onDisconnect();
 				}
 			}

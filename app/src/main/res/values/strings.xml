@@ -1,11 +1,12 @@
 <resources>
     <string name="app_name">PshicoTimer</string>
     <string name="trigger_start">Trigger START</string>
-    <string name="searching">Searching</string>
+    <string name="searching">Searching for buttons…</string>
     <string name="enter_pin">Enter PIN:</string>
     <string name="left_athlete">Left Athlete</string>
     <string name="right_athlete">Right Athlete</string>
     <string name="swipe_right_to_reset">Swipe Right for Reset</string>
     <string name="history">History:</string>
     <string name="reset">Reset</string>
+    <string name="status">Status:</string>
 </resources>
