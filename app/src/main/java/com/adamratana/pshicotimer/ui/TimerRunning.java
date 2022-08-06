@@ -71,25 +71,35 @@ public class TimerRunning extends ControlState {
 			@Override
 			public void run() {
 				try {
+					timerRunning = true;
+
 					audioSilence.play();
 					updateStatus("3");
 					Thread.sleep(500);
 					audioSilence.stop();
 					Thread.sleep(500);
 
+					if (!timerRunning) {
+						return;
+					}
 					audioLow.play();
 					updateStatus("2");
 					Thread.sleep(400);
 					audioLow.stop();
 					Thread.sleep(400);
 
+					if (!timerRunning) {
+						return;
+					}
 					audioLow.play();
 					updateStatus("1");
 					Thread.sleep(400);
 					audioLow.stop();
 					Thread.sleep(400);
 
-					timerRunning = true;
+					if (!timerRunning) {
+						return;
+					}
 					audioHigh.play();
 					updateStatus("GO!");
 					startTime = System.currentTimeMillis();
@@ -118,8 +128,7 @@ public class TimerRunning extends ControlState {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				} finally {
-					audioLow.stop();
-					audioHigh.stop();
+					audioSilence.release();
 					audioLow.release();
 					audioHigh.release();
 				}
@@ -130,10 +139,6 @@ public class TimerRunning extends ControlState {
 	@Override
 	public void terminate() {
 		timerRunning = false;
-
-		audioSilence.release();
-		audioLow.release();
-		audioHigh.release();
 
 		leftHistoryList.insert(leftAthleteText.getText().toString(), 0);
 		leftHistoryList.notifyDataSetChanged();

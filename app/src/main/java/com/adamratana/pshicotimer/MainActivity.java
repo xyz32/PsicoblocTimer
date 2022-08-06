@@ -154,10 +154,9 @@ public class MainActivity extends AppCompatActivity implements TcpClient.OnMessa
 			@Override
 			public void run() {
 				try {
-				System.out.println("Running");
-				audioSilence.play();
-				Thread.sleep(100);
-				audioSilence.stop();
+					audioSilence.play();
+					Thread.sleep(100);
+					audioSilence.stop();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
